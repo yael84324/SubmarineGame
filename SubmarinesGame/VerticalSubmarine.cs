@@ -13,13 +13,14 @@ namespace SubmarinesGame
         {
         }
 
-        public override HitResult Hit(int rowInBoard, int columnInBoard)
+        //checks if the requested cell is within the current submarine area
+        public override HitResult Hit(int providedRowInBoard, int providedColumnInBoard)
         {
             HitResult hitResult = HitResult.Miss;
-            if(columnInBoard == ColumnInBoard && rowInBoard >= RowInBoard && rowInBoard <= RowInBoard + SubmarineLength-1)
+            if(providedColumnInBoard == ColumnInBoard && providedRowInBoard >= RowInBoard && providedRowInBoard <= RowInBoard + SubmarineLength-1)
             {
                 hitResult = HitResult.Hit;
-                SetHasBeenAccessedTrue(rowInBoard - RowInBoard);
+                SetHasBeenAccessedTrue(providedRowInBoard - RowInBoard);
                 if (IsAllBeenAcessed())
                 {
                     hitResult = HitResult.Boom;

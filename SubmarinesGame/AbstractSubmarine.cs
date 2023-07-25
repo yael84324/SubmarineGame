@@ -25,7 +25,7 @@ namespace SubmarinesGame
 
         }
 
-        //function that receives the position of a point (x, y) and determines whether it hit the submarine, sunk it, or missed
+        // receives the position of a point and determines whether it hit the submarine, drown it, or missed
         public abstract HitResult Hit(int rowInBoard, int columnInBoard);
         public void SetHasBeenAccessedTrue(int cellNumber)
         {
@@ -38,7 +38,7 @@ namespace SubmarinesGame
                 throw new ArgumentOutOfRangeException("cellNumber", "Invalid cell number");
             }
         }
-
+        //checks if the entire area of the submarine has been damaged
         public bool IsAllBeenAcessed()
         {
             for(int i = 0; i < SubmarineLength; i++)

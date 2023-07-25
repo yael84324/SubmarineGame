@@ -28,9 +28,12 @@ namespace SubmarinesGame
         //    submarinesArray[2] = new VerticalSubmarine(0, 0, 2);
         //    submarinesArray[3] = new HorizontalSubmarine(4, 1, 1);
         //}
+
+
+        //Placing submarines on the game board
         public void SetBoard()
         {
-            int row, column;
+            int randomRow, randomColumn;
             bool isPositionFound = false;
 
             for (int i = submarinesArray.Length - 1; i >= 0; i--)
@@ -38,34 +41,34 @@ namespace SubmarinesGame
                 while (!isPositionFound)
                 {
                     Random random = new Random();
-                    row = random.Next(0, boardHeight); 
-                    column = random.Next(0, boardWidth);
-                    //נראה שמתאים בגובה
-                    if (i+1 <= boardHeight - row)
+                    randomRow = random.Next(0, boardHeight); 
+                    randomColumn = random.Next(0, boardWidth);
+                    if (i+1 <= boardHeight - randomRow)
                     {
-                        if (i == 3 || (IsVerticalSubmarinePlacementValid(row, column, i+1)))//הוא ודאיי הראשון ויכול להיכנס
+                        if (i == 3 || IsVerticalSubmarinePlacementEmpty(randomRow, randomColumn, i+1))
                         {
                             isPositionFound = true;
-                            submarinesArray[i] = new VerticalSubmarine(row, column, i+1);
+                            submarinesArray[i] = new VerticalSubmarine(randomRow, randomColumn, i+1);
                         }
                     }
-                    if(!isPositionFound && i+1 <= boardWidth - column)
+                    if(!isPositionFound && i+1 <= boardWidth - randomColumn)
                     {
-                        //
-                        if(i== 3 ||(IsHorizontalSubmarinePlacementValid(row, column, i+1) ))
+                        if(i== 3 ||IsHorizontalSubmarinePlacementEmpty(randomRow, randomColumn, i+1) )
                         {
                             isPositionFound = true;
-                            submarinesArray[i]=new  HorizontalSubmarine(row, column, i+1);
+                            submarinesArray[i]=new  HorizontalSubmarine(randomRow, randomColumn, i+1);
                         }
                     }
                 }
                 isPositionFound = false;
             }
         }
-        public bool IsVerticalSubmarinePlacementValid(int row,int column,int length)
+
+        //checks if a submarine can be placed on the game board at a vertical position without overriding any other submarines.
+        public bool IsVerticalSubmarinePlacementEmpty(int row,int column,int length)
         {
             int CurrentSubmarineRow,CurrentSubmarineColumn,CurrentSubmarineLength;
-            for (int i = 3; i > length - 1; i--)
+            for (int i = submarinesArray.Length - 1; i > length - 1; i--)
             {
                 if (submarinesArray[i] != null)
                 {
@@ -87,10 +90,12 @@ namespace SubmarinesGame
             }
             return true;
         }
-        public bool IsHorizontalSubmarinePlacementValid(int row, int column, int length)
+
+        //checks if a submarine can be placed on the game board at a horizontal position without overriding any other submarines.
+        public bool IsHorizontalSubmarinePlacementEmpty(int row, int column, int length)
         {
             int CurrentSubmarineRow, CurrentSubmarineColumn, CurrentSubmarineLength;
-            for(int i=3;i>length - 1; i--)
+            for(int i= submarinesArray.Length-1; i>length - 1; i--)
             {
                 if (submarinesArray[i] != null)
                 {
@@ -99,7 +104,8 @@ namespace SubmarinesGame
                     CurrentSubmarineLength = submarinesArray[i].SubmarineLength;
                     if (submarinesArray[i] is HorizontalSubmarine)
                     {
-                        if (row == CurrentSubmarineRow && column >= CurrentSubmarineColumn && column <= CurrentSubmarineColumn + CurrentSubmarineLength - 1)
+                        if (row == CurrentSubmarineRow && column >= CurrentSubmarineColumn && 
+                            column <= CurrentSubmarineColumn + CurrentSubmarineLength - 1)
                             return false;
                     }
                     else if (submarinesArray[i] is VerticalSubmarine)
@@ -113,10 +119,47 @@ namespace SubmarinesGame
             return true;
         }
 
+
+        //print the state of the game board, displaying an "x" in each cell that contains a submarine
+        public void printBoard()
+        {
+            char[,] board = new char[boardHeight,boardWidth];
+            foreach (AbstractSubmarine currentSubmarine in submarinesArray)
+            {
+                if (currentSubmarine is HorizontalSubmarine)
+                {
+                    for (int column = currentSubmarine.ColumnInBoard; column < currentSubmarine.ColumnInBoard + currentSubmarine.SubmarineLength; column++)
+                    {
+                        board[currentSubmarine.RowInBoard, column] = 'x';
+                    }
+                }
+                else if(currentSubmarine is VerticalSubmarine)
+                {
+                    for(int row = currentSubmarine.RowInBoard; row < currentSubmarine.RowInBoard + currentSubmarine.SubmarineLength; row++)
+                    {
+                        board[row, currentSubmarine.ColumnInBoard] = 'x';
+                    }
+                }
+            }
+            for (int row = 0; row < boardHeight; row++)
+            {
+                for (int column = 0; column < boardWidth; column++)
+                {
+                    if (board[row, column] == 'x')
+                        Console.Write(board[row, column] + "\t");
+                    else
+                        Console.Write("-\t");
+                }
+
+                Console.WriteLine(row);
+            }
+        }
+
+        //determine if the requested cell on the game board contains any submarine, either horizontally or vertically, and return the result if its a hit,boom or miss
         public HitResult Hit(int rowInBoard, int columnInBoard)
         {
             HitResult result;
-            for (int i = 0; i < submarinesArray.Length; i++)
+            for(int i = 0; i < submarinesArray.Length; i++)
             {
                 if (submarinesArray[i] != null)
                 {
@@ -128,38 +171,6 @@ namespace SubmarinesGame
                 }
             }
             return HitResult.Miss;
-        }
-        public void printBoard()
-        {
-            char[,] board = new char[boardHeight,boardWidth];
-            foreach (AbstractSubmarine currentSubmarine in submarinesArray)
-            {
-                if (currentSubmarine is HorizontalSubmarine)
-                {
-                    for (int i = currentSubmarine.ColumnInBoard; i < currentSubmarine.ColumnInBoard + currentSubmarine.SubmarineLength; i++)
-                    {
-                        board[currentSubmarine.RowInBoard, i] = 'x';
-                    }
-                }
-                else if(currentSubmarine is VerticalSubmarine)
-                {
-                    for(int i = currentSubmarine.RowInBoard; i < currentSubmarine.RowInBoard + currentSubmarine.SubmarineLength; i++)
-                    {
-                        board[i,currentSubmarine.ColumnInBoard] = 'x';
-                    }
-                }
-            }
-            for (int i = 0; i < boardHeight; i++)
-            {
-                for (int j = 0; j < boardWidth; j++)
-                {
-                    if (board[i, j] == 'x')
-                        Console.Write(board[i, j] + "\t");
-                    else
-                        Console.Write("-\t");
-                }
-                Console.WriteLine(i + "i");
-            }
         }
     }
 }

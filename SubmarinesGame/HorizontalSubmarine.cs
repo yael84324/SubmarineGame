@@ -13,14 +13,14 @@ namespace SubmarinesGame
         {
         }
 
-        public override HitResult Hit(int rowInBoard, int columnInBoard)
+        //checks if the requested cell is within the current submarine area
+        public override HitResult Hit(int providedRowInBoard, int providedColumnInBoard)
         {
             HitResult hitResult = HitResult.Miss;
-            //האם אני בכלל בשטח הצוללת
-            if(rowInBoard == RowInBoard && columnInBoard >= ColumnInBoard && columnInBoard <= ColumnInBoard+SubmarineLength-1)
+            if(providedRowInBoard == RowInBoard && providedColumnInBoard >= ColumnInBoard && providedColumnInBoard <= ColumnInBoard+SubmarineLength-1)
             {
                 hitResult = HitResult.Hit;
-                SetHasBeenAccessedTrue(columnInBoard - ColumnInBoard);
+                SetHasBeenAccessedTrue(providedColumnInBoard - ColumnInBoard);
                 if (IsAllBeenAcessed())
                 {
                     hitResult = HitResult.Boom;
@@ -28,9 +28,5 @@ namespace SubmarinesGame
             }
             return hitResult;
         }
-
-
-        //בודק אם קיים במקום  הזה
-
     }
 }
