@@ -30,7 +30,15 @@ namespace SubmarinesGame
         //}
 
 
-        //Placing submarines on the game board
+        //function that placing submarines on the game board
+        /*
+         * Generates a random location on the game board and checks if the location is valid for placing a submarine. If the location is not valid,
+         * it generates a new random location until a valid one is found.
+         *
+         * A valid location for a submarine is determined based on the following criteria:
+         * 1. The submarine can enter horizontally or vertically from the drawn position on the board, without extending beyond the boundaries of the board.
+         * 2. All the positions where the submarine will sit must be empty.
+         * */
         public void SetBoard()
         {
             int randomRow, randomColumn;
@@ -45,7 +53,7 @@ namespace SubmarinesGame
                     randomColumn = random.Next(0, boardWidth);
                     if (i+1 <= boardHeight - randomRow)
                     {
-                        if (i == 3 || IsVerticalSubmarinePlacementEmpty(randomRow, randomColumn, i+1))
+                        if (i == submarinesArray.Length-1 || IsVerticalSubmarinePlacementEmpty(randomRow, randomColumn, i+1))
                         {
                             isPositionFound = true;
                             submarinesArray[i] = new VerticalSubmarine(randomRow, randomColumn, i+1);
@@ -53,7 +61,7 @@ namespace SubmarinesGame
                     }
                     if(!isPositionFound && i+1 <= boardWidth - randomColumn)
                     {
-                        if(i== 3 ||IsHorizontalSubmarinePlacementEmpty(randomRow, randomColumn, i+1) )
+                        if(i== submarinesArray.Length - 1 || IsHorizontalSubmarinePlacementEmpty(randomRow, randomColumn, i+1) )
                         {
                             isPositionFound = true;
                             submarinesArray[i]=new  HorizontalSubmarine(randomRow, randomColumn, i+1);
@@ -64,11 +72,13 @@ namespace SubmarinesGame
             }
         }
 
-        //checks if a submarine can be placed on the game board at a vertical position without overriding any other submarines.
-        public bool IsVerticalSubmarinePlacementEmpty(int row,int column,int length)
+        // the function ensure that a submarine can be placed on the game board at a vertical position without overriding any other submarines.
+        // checks if there are a specified number of consecutive free spaces on the game board vertically, starting from a given position, considering the length of the submarine to be placed.
+
+        public bool IsVerticalSubmarinePlacementEmpty(int providedRow, int providedColumn,int providedLength)
         {
             int CurrentSubmarineRow,CurrentSubmarineColumn,CurrentSubmarineLength;
-            for (int i = submarinesArray.Length - 1; i > length - 1; i--)
+            for (int i = submarinesArray.Length - 1; i > providedLength - 1; i--)
             {
                 if (submarinesArray[i] != null)
                 {
@@ -77,13 +87,13 @@ namespace SubmarinesGame
                     CurrentSubmarineLength = submarinesArray[i].SubmarineLength;
                     if (submarinesArray[i] is HorizontalSubmarine)
                     {
-                        if ((row >= CurrentSubmarineRow && row + length - 1 <= CurrentSubmarineRow )||
-                            (column <= CurrentSubmarineColumn + CurrentSubmarineLength - 1 && column >= CurrentSubmarineColumn))
+                        if ((providedRow >= CurrentSubmarineRow && providedRow + providedLength - 1 <= CurrentSubmarineRow )||
+                            (providedColumn <= CurrentSubmarineColumn + CurrentSubmarineLength - 1 && providedColumn >= CurrentSubmarineColumn))
                             return false;
                     }
                     else if (submarinesArray[i] is VerticalSubmarine)
                     {
-                        if (column == CurrentSubmarineColumn && row >= CurrentSubmarineRow && row <= CurrentSubmarineRow + CurrentSubmarineLength - 1)
+                        if (providedColumn == CurrentSubmarineColumn && providedRow >= CurrentSubmarineRow && providedRow <= CurrentSubmarineRow + CurrentSubmarineLength - 1)
                             return false;
                     }
                 }
@@ -91,11 +101,12 @@ namespace SubmarinesGame
             return true;
         }
 
-        //checks if a submarine can be placed on the game board at a horizontal position without overriding any other submarines.
-        public bool IsHorizontalSubmarinePlacementEmpty(int row, int column, int length)
+        // the function ensure that a submarine can be placed on the game board at a horizontal position without overriding any other submarines.
+        // checks if there are a specified number of consecutive free spaces on the game board horizontally, starting from a given position, considering the length of the submarine to be placed.
+        public bool IsHorizontalSubmarinePlacementEmpty(int providedRow, int providedColumn, int providedLength)
         {
             int CurrentSubmarineRow, CurrentSubmarineColumn, CurrentSubmarineLength;
-            for(int i= submarinesArray.Length-1; i>length - 1; i--)
+            for(int i= submarinesArray.Length-1; i> providedLength - 1; i--)
             {
                 if (submarinesArray[i] != null)
                 {
@@ -104,14 +115,14 @@ namespace SubmarinesGame
                     CurrentSubmarineLength = submarinesArray[i].SubmarineLength;
                     if (submarinesArray[i] is HorizontalSubmarine)
                     {
-                        if (row == CurrentSubmarineRow && column >= CurrentSubmarineColumn && 
-                            column <= CurrentSubmarineColumn + CurrentSubmarineLength - 1)
+                        if (providedRow == CurrentSubmarineRow && providedColumn >= CurrentSubmarineColumn &&
+                            providedColumn <= CurrentSubmarineColumn + CurrentSubmarineLength - 1)
                             return false;
                     }
                     else if (submarinesArray[i] is VerticalSubmarine)
                     {
-                        if ((column >= CurrentSubmarineColumn && column + length - 1 <= CurrentSubmarineColumn) ||
-                            (row <= CurrentSubmarineRow + CurrentSubmarineLength - 1 && row >= CurrentSubmarineRow))
+                        if ((providedColumn >= CurrentSubmarineColumn && providedColumn + providedLength - 1 <= CurrentSubmarineColumn) ||
+                            (providedRow <= CurrentSubmarineRow + CurrentSubmarineLength - 1 && providedRow >= CurrentSubmarineRow))
                             return false;
                     }
                 }
@@ -120,7 +131,7 @@ namespace SubmarinesGame
         }
 
 
-        //print the state of the game board, displaying an "x" in each cell that contains a submarine
+        // print the state of the game board, displaying an "x" in each cell that contains a submarine
         public void printBoard()
         {
             char[,] board = new char[boardHeight,boardWidth];
@@ -155,7 +166,13 @@ namespace SubmarinesGame
             }
         }
 
-        //determine if the requested cell on the game board contains any submarine, either horizontally or vertically, and return the result if its a hit,boom or miss
+        //  the function determine if the requested cell on the game board contains any submarine, either horizontally or vertically, and return the result if its a hit,boom or miss
+
+        /* This function scans all the submarines on the game board and checks if the specified position, received as a parameter, corresponds to any of the submarines. It returns the result of the hit or miss.
+        * If all parts of a submarine at the specified position have been damaged, the function returns "boom", indicating that the submarine has been sunk.
+        * If there is damage to the submarine at the specified position but not all parts have been damaged, the function returns "hit", indicating that the submarine has been hit but not completely destroyed.
+        * If there is no damage to any submarine at the specified position, the function returns "miss", indicating that there is no submarine present in that location.
+        * */
         public HitResult Hit(int rowInBoard, int columnInBoard)
         {
             HitResult result;
